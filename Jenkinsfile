@@ -10,7 +10,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 git 'https://github.com/GowthamiR-13/otel-gitops.git'
             }
@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        stage('Login to ECR') {
+        stage('Login to Amazon ECR') {
             steps {
                 sh '''
                 aws ecr get-login-password --region $AWS_REGION | docker login \
@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Push Image to ECR') {
+        stage('Push Image') {
             steps {
                 sh '''
                 docker tag $ECR_REPO:$IMAGE_TAG \
@@ -46,7 +46,7 @@ pipeline {
             }
         }
 
-        stage('Update Kubernetes Manifest') {
+        stage('Update Manifest') {
             steps {
                 sh '''
                 sed -i "s|image: .*|image: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG|g" manifests/deploy.yaml
